@@ -44,5 +44,3 @@
 ## 👨‍💻 Author
 Tuba Shaikh
 
-## 👨‍💻 Author
-Your Name
