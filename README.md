@@ -37,7 +37,10 @@
 ---
 
 ## 📸 Screenshots
-(Add screenshots here)
+<img width="1920" height="1080" alt="Screenshot (16)" src="https://github.com/user-attachments/assets/a39a2ae4-aaff-4753-aecd-182c1cbe2da1" />
+<img width="1920" height="1080" alt="Screenshot (15)" src="https://github.com/user-attachments/assets/0c9a0ed0-d9fe-4918-8627-44a1133be682" />
+
+
 
 ---
 
