@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice Generator</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 5px 20px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .input-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            background: #007bff;
+            color: white;
+            padding: 10px;
+        }
+
+        td {
+            padding: 8px;
+            text-align: center;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 6px;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 5px;
+        }
+
+        .add {
+            background: #28a745;
+            color: white;
+        }
+
+        .save {
+            background: #007bff;
+            color: white;
+        }
+
+        .delete {
+            background: red;
+            color: white;
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: right;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>🧾 Invoice Generator</h2>
+
+    <div class="input-box">
+        <input id="client" placeholder="Client Name">
+        <input id="invoiceNo" placeholder="Invoice No">
+        <input type="date" id="date">
+    </div>
+
+    <table id="table">
+        <tr>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Rate</th>
+            <th>Tax %</th>
+            <th>Total</th>
+            <th>Action</th>
+        </tr>
+    </table>
+
+    <button class="btn add" onclick="addRow()">+ Add Item</button>
+    <button class="btn save" onclick="saveInvoice()">Save Invoice</button>
+	<button class="btn print" onclick="printInvoice()">Print Invoice</button>
+
+    <div class="footer" id="grand">
+        Grand Total: ₹0
+    </div>
+
+</div>
+
+<script>
+
+function addRow() {
+    let row = table.insertRow();
+
+    row.innerHTML = `
+        <td><input type="text"></td>
+        <td><input type="number" oninput="calc()"></td>
+        <td><input type="number" oninput="calc()"></td>
+        <td><input type="number" oninput="calc()"></td>
+        <td>0</td>
+        <td><button class="btn delete" onclick="this.parentElement.parentElement.remove(); calc()">X</button></td>
+    `;
+}
+
+function calc() {
+    let rows = table.rows;
+    let grand = 0;
+
+    for (let i = 1; i < rows.length; i++) {
+        let r = rows[i];
+
+        let qty = r.cells[1].querySelector("input")?.value || 0;
+        let rate = r.cells[2].querySelector("input")?.value || 0;
+        let tax = r.cells[3].querySelector("input")?.value || 0;
+
+        let total = qty * rate;
+        let gst = (total * tax) / 100;
+        let final = total + gst;
+
+        r.cells[4].innerText = final.toFixed(2);
+
+        grand += final;
+    }
+
+    document.getElementById("grand").innerText =
+        "Grand Total: ₹" + grand.toFixed(2);
+}
+
+function saveInvoice() {
+
+    let items = [];
+    let rows = table.rows;
+
+    for (let i = 1; i < rows.length; i++) {
+        let r = rows[i];
+
+        items.push({
+            itemName: r.cells[0].querySelector("input").value,
+            qty: r.cells[1].querySelector("input").value,
+            rate: r.cells[2].querySelector("input").value,
+            tax: r.cells[3].querySelector("input").value,
+            total: r.cells[4].innerText
+        });
+    }
+
+    fetch("/save", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            clientName: document.getElementById("client").value,
+            invoiceNo: document.getElementById("invoiceNo").value,
+            date: document.getElementById("date").value,
+            items: items
+        })
+    })
+    .then(res => res.text())
+    .then(data => alert("✅ " + data));
+}
+function printInvoice() {
+    window.print();
+}
+
+</script>
+
+</body>
+</html>
